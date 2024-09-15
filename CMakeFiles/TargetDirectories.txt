@@ -1,0 +1,3 @@
+/Users/strongnine/Documents/9Brary/9Mage/CMakeFiles/9Mage.dir
+/Users/strongnine/Documents/9Brary/9Mage/CMakeFiles/edit_cache.dir
+/Users/strongnine/Documents/9Brary/9Mage/CMakeFiles/rebuild_cache.dir

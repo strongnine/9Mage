@@ -1,0 +1,14 @@
+[
+{
+  "directory": "/Users/strongnine/Documents/9Brary/9Mage/build",
+  "command": "/usr/bin/clang++  -isystem /opt/homebrew/Cellar/opencv/4.10.0_5/include/opencv4 -g -std=gnu++11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.4.sdk -o CMakeFiles/9Mage.dir/src/9Mage.cpp.o -c /Users/strongnine/Documents/9Brary/9Mage/src/9Mage.cpp",
+  "file": "/Users/strongnine/Documents/9Brary/9Mage/src/9Mage.cpp",
+  "output": "CMakeFiles/9Mage.dir/src/9Mage.cpp.o"
+},
+{
+  "directory": "/Users/strongnine/Documents/9Brary/9Mage/build",
+  "command": "/usr/bin/clang++  -isystem /opt/homebrew/Cellar/opencv/4.10.0_5/include/opencv4 -g -std=gnu++11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.4.sdk -o CMakeFiles/9Mage.dir/src/methods/secedct.cpp.o -c /Users/strongnine/Documents/9Brary/9Mage/src/methods/secedct.cpp",
+  "file": "/Users/strongnine/Documents/9Brary/9Mage/src/methods/secedct.cpp",
+  "output": "CMakeFiles/9Mage.dir/src/methods/secedct.cpp.o"
+}
+]
