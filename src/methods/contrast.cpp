@@ -1,17 +1,10 @@
-#include <numeric>
-#include <vector>
-#include <opencv2/opencv.hpp>
+#include "contrast.h"
 
-#include "secedct.h"
+SEGCE::SEGCE() {}
 
-using namespace cv;
-using namespace std;
+SEGCE::~SEGCE() {}
 
-SECEDCT::SECEDCT() {}
-
-SECEDCT::~SECEDCT() {}
-
-void SECEDCT::calc_global_histogram(const Mat& img)
+void SEGCE::calc_global_histogram(const cv::Mat& img)
 {
     int H = img.rows;  // Height
     int W = img.cols;  // Width
@@ -28,7 +21,7 @@ void SECEDCT::calc_global_histogram(const Mat& img)
     }
 }
 
-void SECEDCT::calc_global_entropy()
+void SEGCE::calc_global_entropy()
 {
     float hist_value;
 
@@ -42,7 +35,7 @@ void SECEDCT::calc_global_entropy()
     }
 }
 
-void SECEDCT::calc_spatial_histogram(const Mat& img)
+void SEGCE::calc_spatial_histogram(const cv::Mat& img)
 {
     int   H = img.rows;  // Height
     int   W = img.cols;  // Width
@@ -70,7 +63,7 @@ void SECEDCT::calc_spatial_histogram(const Mat& img)
     }
 }
 
-void SECEDCT::calc_spatial_entropy()
+void SEGCE::calc_spatial_entropy()
 {
     float S_k, hist_value;
 
@@ -95,7 +88,7 @@ void SECEDCT::calc_spatial_entropy()
     }
 }
 
-void SECEDCT::calc_mapping()
+void SEGCE::calc_mapping()
 {
     fk = vector<float>(256, 0.0);
     fk_norm = vector<float>(256, 0.0);
@@ -117,21 +110,21 @@ void SECEDCT::calc_mapping()
     }
 }
 
-void SECEDCT::pixel_mapping(const Mat& src, Mat& dst,
-                            const vector<int>& map)
+void SEGCE::pixel_mapping(const cv::Mat& src, cv::Mat& dst,
+                          const vector<int>& map)
 {
-    Mat table(map);
+    cv::Mat table(map);
     table.convertTo(table, CV_8U);
     src.convertTo(src, CV_8U);
-    LUT(src, table, dst);
+    cv::LUT(src, table, dst);
 }
 
-void SECEDCT::processing(const cv::Mat& src, cv::Mat& dst)
+void SEGCE::processing(const cv::Mat& src, cv::Mat& dst)
 {
-    Mat img_hsv;
-    cvtColor(src, img_hsv, COLOR_BGR2HSV);
-    vector<Mat> channels;
-    split(img_hsv, channels);
+    cv::Mat img_gary;
+    cvtColor(src, img_gary, cv::COLOR_BGR2GRAY);
+    vector<cv::Mat> channels;
+    split(img_gary, channels);
 
     // calc_global_histogram(channels[2]);  // 全局处理
     // calc_global_entropy();               // 全局处理
@@ -141,5 +134,5 @@ void SECEDCT::processing(const cv::Mat& src, cv::Mat& dst)
     pixel_mapping(channels[2], channels[2], ymap);
 
     merge(channels, dst);
-    cvtColor(dst, dst, COLOR_HSV2BGR);
+    cvtColor(dst, dst, cv::COLOR_HSV2BGR);
 }
