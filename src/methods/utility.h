@@ -3,4 +3,4 @@
 
 using namespace std;
 
-vector<float> img2hist(cv::Mat img);
+void proc_with_method(const cv::Mat& src, cv::Mat& dst);

@@ -32,7 +32,7 @@ find_package(OpenCV REQUIRED)
 # name of executable file and path of source file
 # 可执行文件的名字，和对应源码的名字
 # !!! 这个命令一定要在 TARGET_LINK_LIBRARIES 之前使用
-add_executable(9Mage src/9Mage.cpp src/methods/contrast.cpp src/methods/utility.cpp)
+add_executable(9Mage src/9Mage.cpp src/methods/contrast.cpp src/methods/utility.cpp src/methods/lighten.cpp)
 
 # directory of opencv headers
 # 设置包含的头文件的路径

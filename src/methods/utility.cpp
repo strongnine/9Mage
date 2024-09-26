@@ -1,10 +1,6 @@
 #include "utility.h"
 
-vector<float> img2hist(cv::Mat img) {
-    vector<float> hist(256);
+void proc_with_method(const cv::Mat& src, cv::Mat& dst) {
 
-    int W = img.cols;
-    int H = img.rows;
-
-    return hist;
+    return;
 }

@@ -6,6 +6,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 
 #include "./methods/contrast.h"
+#include "./methods/lighten.h"
 #include "cmdline.h"
 
 using namespace std;
@@ -16,7 +17,7 @@ int main(int argc, char** argv)
     // opt.add<string>("src", 's', "The path of the src image. ", true);
     // opt.add<string>("dst", 'd', "The path of the result image. ", true);
     opt.add<string>("method", 'm', "The method to use. ", true, "",
-                    cmdline::oneof<string>("SEGCE", "USM"));
+                    cmdline::oneof<string>("SEGCE", "USM", "AGC"));
     opt.add("show", 's', "Show result image. ");
     opt.add("nosave", '\0', "Donot save the result image. ");
 
@@ -42,8 +43,8 @@ int main(int argc, char** argv)
     string  save_path = argv[2];
     cv::Mat img_res;
 
-    SEGCE secedct;
-    secedct.processing(img_src, img_res);
+    SEGCE segce;
+    segce.processing(img_src, img_res);
 
     if (opt.exist("show")) {
         cv::imshow("result image", img_res);
