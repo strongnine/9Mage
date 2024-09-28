@@ -6,8 +6,9 @@ SEGCE::~SEGCE() {}
 
 void SEGCE::calc_global_histogram(const cv::Mat& img)
 {
-    int H = img.rows;  // Height
-    int W = img.cols;  // Width
+    int H = img.rows;   // Height
+    int W = img.cols;   // Width
+
     this->global_histogram = vector<int>(256);
     int gray_level;
 
@@ -37,22 +38,22 @@ void SEGCE::calc_global_entropy()
 
 void SEGCE::calc_spatial_histogram(const cv::Mat& img)
 {
-    int   H = img.rows;  // Height
-    int   W = img.cols;  // Width
+    int   H     = img.rows;   // Height
+    int   W     = img.cols;   // Width
     float ratio = (float)H / W;
-    region_num = 256;
+    region_num  = 256;
 
     int M, N;
-    M = round(sqrt(region_num * ratio));  // height region num
-    N = round(sqrt(region_num / ratio));  //  width region num
+    M = round(sqrt(region_num * ratio));   // height region num
+    N = round(sqrt(region_num / ratio));   //  width region num
 
-    region_num = N * M;
+    region_num        = N * M;
     spatial_histogram = vector<vector<int>>(256, vector<int>(region_num));
 
     int gray_level;
     int region_idx = 0;
-    int dH = int(H / M);
-    int dW = int(W / N);
+    int dH         = int(H / M);
+    int dW         = int(W / N);
 
     for (int h = 0; h < M * dH; h++) {
         for (int w = 0; w < N * dW; w++) {
@@ -71,9 +72,8 @@ void SEGCE::calc_spatial_entropy()
 
     for (int k = 0; k < 256; k++) {
         S_k = 0.0;
-        sum_region_hist = accumulate(spatial_histogram[k].begin(),
-                                     spatial_histogram[k].end(), 0.0) +
-                          this->_EPS;
+        sum_region_hist =
+            accumulate(spatial_histogram[k].begin(), spatial_histogram[k].end(), 0.0) + this->_EPS;
 
         for (int r = 0; r < region_num; r++) {
             // cout << k << ", " << r << ", " << spatial_histogram[k].size()
@@ -90,28 +90,27 @@ void SEGCE::calc_spatial_entropy()
 
 void SEGCE::calc_mapping()
 {
-    fk = vector<float>(256, 0.0);
-    fk_norm = vector<float>(256, 0.0);
-    F_cdf = vector<float>(256, 0.0);
-    ymap = vector<int>(256, 0);
+    this->fk      = vector<float>(256, 0.0);
+    this->fk_norm = vector<float>(256, 0.0);
+    this->F_cdf   = vector<float>(256, 0.0);
+    this->ymap    = vector<int>(256, 0);
 
     for (int k = 0; k < 256; k++) {
         fk[k] = entropy[k] / (sum_entropy - entropy[k] + this->_EPS);
         sum_fk += fk[k];
     }
 
-    fk_norm[0] = fk[0] / (sum_fk + this->_EPS);
-    F_cdf[0] = fk_norm[0];
-    ymap[0] = round(F_cdf[0] * (yu - yd) + yd);
+    fk_norm[0]    = fk[0] / (sum_fk + this->_EPS);
+    F_cdf[0]      = fk_norm[0];
+    this->ymap[0] = round(F_cdf[0] * (yu - yd) + yd);
     for (int k = 1; k < 256; k++) {
-        fk_norm[k] = fk[k] / (sum_fk + this->_EPS);
-        F_cdf[k] = F_cdf[k - 1] + fk_norm[k];
-        ymap[k] = round(F_cdf[k] * (yu - yd) + yd);
+        fk_norm[k]    = fk[k] / (sum_fk + this->_EPS);
+        F_cdf[k]      = F_cdf[k - 1] + fk_norm[k];
+        this->ymap[k] = round(F_cdf[k] * (yu - yd) + yd);
     }
 }
 
-void SEGCE::pixel_mapping(const cv::Mat& src, cv::Mat& dst,
-                          const vector<int>& map)
+void SEGCE::pixel_mapping(const cv::Mat& src, cv::Mat& dst, const vector<int>& map)
 {
     cv::Mat table(map);
     table.convertTo(table, CV_8U);
@@ -128,8 +127,8 @@ void SEGCE::processing(const cv::Mat& src, cv::Mat& dst)
 
     // calc_global_histogram(channels[2]);  // 全局处理
     // calc_global_entropy();               // 全局处理
-    calc_spatial_histogram(channels[2]);  // 局部处理
-    calc_spatial_entropy();               // 局部处理
+    calc_spatial_histogram(channels[2]);   // 局部处理
+    calc_spatial_entropy();                // 局部处理
     calc_mapping();
     pixel_mapping(channels[2], channels[2], ymap);
 

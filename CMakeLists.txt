@@ -29,10 +29,15 @@ set(CMAKE_OSX_ARCHITECTURES arm64)
 #     4. OpenCV_LIBRARIES    - OpenCV 的所有库文件列表
 find_package(OpenCV REQUIRED)
 
+# 源文件路径
+aux_source_directory(./src SRC_DIR)
+aux_source_directory(./src/methods METHODS_DIR)
+aux_source_directory(./src/utils UTILS_DIR)
+
 # name of executable file and path of source file
 # 可执行文件的名字，和对应源码的名字
 # !!! 这个命令一定要在 TARGET_LINK_LIBRARIES 之前使用
-add_executable(9Mage src/9Mage.cpp src/methods/contrast.cpp src/methods/utility.cpp src/methods/lighten.cpp)
+add_executable(9Mage ${SRC_DIR} ${METHODS_DIR} ${UTILS_DIR})
 
 # directory of opencv headers
 # 设置包含的头文件的路径

@@ -3,7 +3,8 @@
 
 using namespace std;
 
-class USM {
+class USM
+{
 public:
     USM();
     ~USM();

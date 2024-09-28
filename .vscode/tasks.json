@@ -2,21 +2,11 @@
     "tasks": [
         {
             "type": "shell",
-            "label": "g++ build active file",
-            "command": "/usr/bin/g++",
-            "args": [
-                "-g",
-                "${file}",
-                "-o",
-                "${fileDirname}/${fileBasenameNoExtension}.o",
-                "-std=c++11",
-                "`pkg-config",
-                "--libs",
-                "--cflags",
-                "opencv4`"
-            ],
+            "label": "make",
+            "command": "make",
+            "args": [],
             "options": {
-                "cwd": "/usr/bin"
+                "cwd": "${workspaceFolder}/build"
             },
             "group": {
                 "kind": "build",

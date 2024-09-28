@@ -3,4 +3,4 @@
 
 using namespace std;
 
-void AutoGammaCorrection(const cv::Mat &src, cv::Mat &dst);
+void AutoGammaCorrection(const cv::Mat& src, cv::Mat& dst);

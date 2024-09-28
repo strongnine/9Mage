@@ -4,24 +4,31 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <string>
 
-#include "./methods/contrast.h"
-#include "./methods/lighten.h"
-#include "cmdline.h"
+#include "./utils/cmdline.h"   // https://github.com/tanakh/cmdline
+#include "./utils/utility.h"
 
 using namespace std;
 
 int main(int argc, char** argv)
 {
+    string program_name = (string)argv[0] + " <path_to_read> <path_to_save>";
+
     cmdline::parser opt;
+    opt.set_program_name(program_name);
     // opt.add<string>("src", 's', "The path of the src image. ", true);
     // opt.add<string>("dst", 'd', "The path of the result image. ", true);
-    opt.add<string>("method", 'm', "The method to use. ", true, "",
+    opt.add<string>("method",
+                    'm',
+                    "The method to use. ",
+                    true,
+                    "",
                     cmdline::oneof<string>("SEGCE", "USM", "AGC"));
     opt.add("show", 's', "Show result image. ");
     opt.add("nosave", '\0', "Donot save the result image. ");
 
-    opt.add<string>("help", 'h', "Print usage. ", false);
+    // opt.add<string>("help", '?', "Print usage. ", false);
     opt.parse_check(argc, argv);
 
     // if (argc != 3) {s
@@ -43,8 +50,8 @@ int main(int argc, char** argv)
     string  save_path = argv[2];
     cv::Mat img_res;
 
-    SEGCE segce;
-    segce.processing(img_src, img_res);
+    // img_src = img_res;
+    proc_with_method(img_src, img_res, opt.get<string>("method"));
 
     if (opt.exist("show")) {
         cv::imshow("result image", img_res);

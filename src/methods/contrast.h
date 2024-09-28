@@ -1,13 +1,14 @@
 #include <numeric>
-#include <vector>
 #include <opencv2/core/mat.hpp>
 #include <opencv2/opencv.hpp>
+#include <vector>
 
 using namespace std;
 
 uint64_t GetPIDTimeInNanoseconds(uint64_t start, uint64_t end);
 
-class SEGCE {
+class SEGCE
+{
 public:
     SEGCE();
     ~SEGCE();
@@ -18,10 +19,11 @@ private:
     int   yu = 255;
     int   yd = 0;
     int   region_num;
-    float _EPS = 1e-7;
-    float sum_entropy = 0.0;
+    
+    float _EPS            = 1e-7;
+    float sum_entropy     = 0.0;
     float sum_region_hist = 0.0;
-    float sum_fk = 0.0;
+    float sum_fk          = 0.0;
 
     vector<int>         global_histogram;
     vector<vector<int>> spatial_histogram;
