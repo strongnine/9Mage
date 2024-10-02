@@ -1,5 +1,6 @@
 #include <numeric>
 #include <opencv2/core/mat.hpp>
+#include <opencv2/imgproc.hpp>
 #include <opencv2/opencv.hpp>
 #include <vector>
 
@@ -16,10 +17,14 @@ public:
     void processing(const cv::Mat& src, cv::Mat& dst);
 
 private:
-    int   yu = 255;
-    int   yd = 0;
-    int   region_num;
-    
+    int yu = 255;
+    int yd = 0;
+    int region_num;
+
+    int height;
+    int width;
+    int stride;
+
     float _EPS            = 1e-7;
     float sum_entropy     = 0.0;
     float sum_region_hist = 0.0;
@@ -39,4 +44,7 @@ private:
     void calc_spatial_entropy();
     void calc_mapping();
     void pixel_mapping(const cv::Mat& src, cv::Mat& dst, const vector<int>& map);
+
+    void calc_spatial_histogram(const uint8_t* p_img);
+    void pixel_mapping(const uint8_t* p_src, uint8_t* p_dst);
 };

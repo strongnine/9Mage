@@ -1,5 +1,8 @@
 #include "sharpen.h"
 
+USM::USM() {}
+USM::~USM() {}
+
 void USM::processing(const cv::Mat& src, cv::Mat& dst)
 {
     int H = src.rows;

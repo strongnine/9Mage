@@ -1,5 +1,6 @@
 #include "contrast.h"
 
+
 SEGCE::SEGCE() {}
 
 SEGCE::~SEGCE() {}
@@ -64,6 +65,33 @@ void SEGCE::calc_spatial_histogram(const cv::Mat& img)
     }
 }
 
+void SEGCE::calc_spatial_histogram(const uint8_t* img)
+{
+    float ratio      = (float)this->height / this->width;
+    this->region_num = 256;
+
+    int M, N;
+    M = round(sqrt(region_num * ratio));   // height region num
+    N = round(sqrt(region_num / ratio));   //  width region num
+
+    region_num        = N * M;
+    spatial_histogram = vector<vector<int>>(256, vector<int>(region_num));
+
+    int gray_level;
+    int region_idx = 0;
+    int dH         = int(this->height / M);
+    int dW         = int(this->width / N);
+
+    for (int h = 0; h < M * dH; h++) {
+        const uint8_t* p_img = img + h * width;
+        for (int w = 0; w < N * dW; w++) {
+            region_idx = int(h / dH) * N + int(w / dW);
+            gray_level = p_img[w];
+            spatial_histogram[gray_level][region_idx]++;
+        }
+    }
+}
+
 void SEGCE::calc_spatial_entropy()
 {
     float S_k, hist_value;
@@ -76,8 +104,6 @@ void SEGCE::calc_spatial_entropy()
             accumulate(spatial_histogram[k].begin(), spatial_histogram[k].end(), 0.0) + this->_EPS;
 
         for (int r = 0; r < region_num; r++) {
-            // cout << k << ", " << r << ", " << spatial_histogram[k].size()
-            // << endl;
             hist_value = (float)spatial_histogram[k][r] / sum_region_hist;
             if (hist_value != 0) {
                 S_k += -(hist_value * log2(hist_value));
@@ -118,20 +144,41 @@ void SEGCE::pixel_mapping(const cv::Mat& src, cv::Mat& dst, const vector<int>& m
     cv::LUT(src, table, dst);
 }
 
+void SEGCE::pixel_mapping(const uint8_t* src, uint8_t* dst)
+{
+    for (int h = 0; h < height; h++) {
+        const uint8_t* p_src = src + h * this->stride;
+        uint8_t*       p_dst = dst + h * this->stride;
+        for (int w = 0; w < width; w++) {
+            p_dst[w * 3 + 0] = this->ymap[p_src[w * 3 + 0]];
+            p_dst[w * 3 + 1] = this->ymap[p_src[w * 3 + 1]];
+            p_dst[w * 3 + 2] = this->ymap[p_src[w * 3 + 2]];
+        }
+    }
+}
+
 void SEGCE::processing(const cv::Mat& src, cv::Mat& dst)
 {
+    this->height = src.rows;
+    this->width  = src.cols;
+    this->stride = this->width * 3;
+
     cv::Mat img_gary;
+    dst = cv::Mat(this->height, this->width, CV_8UC3);
     cvtColor(src, img_gary, cv::COLOR_BGR2GRAY);
-    vector<cv::Mat> channels;
-    split(img_gary, channels);
 
-    // calc_global_histogram(channels[2]);  // 全局处理
-    // calc_global_entropy();               // 全局处理
-    calc_spatial_histogram(channels[2]);   // 局部处理
-    calc_spatial_entropy();                // 局部处理
+    // calc_spatial_histogram(img_gary);
+    calc_spatial_histogram(img_gary.data);
+    calc_spatial_entropy();
     calc_mapping();
-    pixel_mapping(channels[2], channels[2], ymap);
+    pixel_mapping(src.data, dst.data);
 
-    merge(channels, dst);
-    cvtColor(dst, dst, cv::COLOR_HSV2BGR);
+    // vector<cv::Mat> channels;
+    // split(src, channels);
+    // for (int c = 0; c < 3; c++) {
+    //     this->pixel_mapping(channels[c], channels[c], this->ymap);
+    // }
+
+    // merge(channels, dst);
+    return;
 }

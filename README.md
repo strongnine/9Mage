@@ -1,4 +1,4 @@
-[![ID](https://img.shields.io/badge/ID-strongnine-orange)](https://github.com/strongnine) [![ID](https://img.shields.io/badge/website-9Mage-orange)](https://github.com/strongnine/9Mage) [![ID](https://img.shields.io/badge/version-v0.1.0-orange)](https://strongnine.github.io/9Docs/dev/)
+[![ID](https://img.shields.io/badge/ID-strongnine-orange)](https://github.com/strongnine) [![ID](https://img.shields.io/badge/website-9Mage-orange)](https://github.com/strongnine/9Mage) [![ID](https://img.shields.io/badge/version-v0.1.1-orange)](https://github.com/strongnine/9Mage)
 
 # 9Mage
 
