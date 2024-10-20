@@ -5,6 +5,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <string>
+#include <unordered_map>
 
 #include "./utils/cmdline.h"   // https://github.com/tanakh/cmdline
 #include "./utils/utility.h"
@@ -21,10 +22,10 @@ int main(int argc, char** argv)
     // opt.add<string>("dst", 'd', "The path of the result image. ", true);
     opt.add<string>("method",
                     'm',
-                    "The method to use. ",
+                    "The method to use.",
                     true,
                     "",
-                    cmdline::oneof<string>("SEGCE", "USM", "AGC"));
+                    cmdline::oneof<string>("SEGCE", "USM", "AGC", "PicPost"));
     opt.add("show", 's', "Show result image. ");
     opt.add("nosave", '\0', "Donot save the result image. ");
 

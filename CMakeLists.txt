@@ -17,8 +17,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${9Mage_SOURCE_DIR}/bin)
 # SET(CMAKE_C_COMPILER "/usr/bin/gcc")
 # SET(CMAKE_CXX_COMPILER "/usr/bin/g++")
 set(CMAKE_OSX_ARCHITECTURES arm64)
-# set(CMAKE_CXX_STANDARD 11)
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -lstdc++")
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -mfpu=neon")
 
 # find required opencv
 # find_package 这个指令以被用来在系统中自动查找配置构建工程所需的程序库

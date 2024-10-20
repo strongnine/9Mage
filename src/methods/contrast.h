@@ -1,3 +1,4 @@
+#include <arm_neon.h>
 #include <numeric>
 #include <opencv2/core/mat.hpp>
 #include <opencv2/imgproc.hpp>
@@ -14,7 +15,7 @@ public:
     SEGCE();
     ~SEGCE();
 
-    void processing(const cv::Mat& src, cv::Mat& dst);
+    void processing(const cv::Mat& src, cv::Mat& dst, string acc = "none");
 
 private:
     int yu = 255;
@@ -43,8 +44,9 @@ private:
     void calc_spatial_histogram(const cv::Mat& img);
     void calc_spatial_entropy();
     void calc_mapping();
-    void pixel_mapping(const cv::Mat& src, cv::Mat& dst, const vector<int>& map);
+    void pixel_mapping(const cv::Mat& src, cv::Mat& dst);
 
     void calc_spatial_histogram(const uint8_t* p_img);
     void pixel_mapping(const uint8_t* p_src, uint8_t* p_dst);
+    void pixel_mapping_neon(const uint8_t* __restrict src, uint8_t* __restrict dst);
 };

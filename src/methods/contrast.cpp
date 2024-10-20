@@ -1,5 +1,7 @@
 #include "contrast.h"
-
+#include <_types/_uint8_t.h>
+#include <arm_neon.h>
+#include <sys/_types/_int32_t.h>
 
 SEGCE::SEGCE() {}
 
@@ -136,12 +138,19 @@ void SEGCE::calc_mapping()
     }
 }
 
-void SEGCE::pixel_mapping(const cv::Mat& src, cv::Mat& dst, const vector<int>& map)
+void SEGCE::pixel_mapping(const cv::Mat& src, cv::Mat& dst)
 {
-    cv::Mat table(map);
+    cv::Mat table(this->ymap);
     table.convertTo(table, CV_8U);
-    src.convertTo(src, CV_8U);
-    cv::LUT(src, table, dst);
+
+    vector<cv::Mat> channels;
+    split(src, channels);
+    for (int c = 0; c < 3; c++) {
+        channels[c].convertTo(channels[c], CV_8U);
+        cv::LUT(channels[c], table, channels[c]);
+    }
+
+    merge(channels, dst);
 }
 
 void SEGCE::pixel_mapping(const uint8_t* src, uint8_t* dst)
@@ -157,7 +166,76 @@ void SEGCE::pixel_mapping(const uint8_t* src, uint8_t* dst)
     }
 }
 
-void SEGCE::processing(const cv::Mat& src, cv::Mat& dst)
+// TODO: 该函数未进行 -O3 编译优化之前效率很低，需要对 NEON 指令的写法再优化
+void SEGCE::pixel_mapping_neon(const uint8_t* __restrict src, uint8_t* __restrict dst)
+{
+    int block_sz  = 16;
+    int block_num = width * 3 / block_sz;
+
+    // 原始 this->ymap 中的索引
+    // [ 0  1  2  3 |  4  5  6  7 | ... ]
+    // [16 17 18 19 | 20 21 22 23 | ... ]
+    // [32 33 34 35 | 36 37 38 39 | ... ]
+    // [48 49 50 51 | 52 53 54 55 | ... ]
+    // 
+    // 读取到寄存器中 table 对应在 this->ymap 中的索引
+    // [ 0  4  8 12 | 16 20 24 28 | ... ]
+    // [ 1  5  9 13 | 17 21 25 29 | ... ]
+    // [ 2  6 10 14 | 18 22 26 30 | ... ]
+    // [ 3  7 11 15 | 19 23 27 31 | ... ]
+
+    uint8x16_t   index, vec_src, vec_dst, tmp1_u8x16, tmp2_u8x16, tmp3_u8x16, tmp4_u8x16;
+    uint8x16_t   diff = vdupq_n_u8(64);
+    uint8x16x4_t table, table1, table2, table3, table4;
+    for (int i = 0; i < 4; i++) {
+        table         = vld4q_u8((uint8_t*)(this->ymap.data() + i * 16));
+        table1.val[i] = table.val[0];
+
+        table         = vld4q_u8((uint8_t*)(this->ymap.data() + 64 + i * 16));
+        table2.val[i] = table.val[0];
+
+        table         = vld4q_u8((uint8_t*)(this->ymap.data() + 128 + i * 16));
+        table3.val[i] = table.val[0];
+
+        table         = vld4q_u8((uint8_t*)(this->ymap.data() + 192 + i * 16));
+        table4.val[i] = table.val[0];
+    }
+
+    // block_sz 为 16，每次可以并行处理 16 个像素
+    for (int h = 0; h < height; h++) {
+        const uint8_t* p_src = src + h * stride;
+        uint8_t*       p_dst = dst + h * stride;
+        for (int i = 0; i < block_num * block_sz; i += block_sz) {
+            vec_src    = vld1q_u8(p_src);
+            tmp1_u8x16 = vqtbl4q_u8(table1, vec_src);
+
+            vec_src    = vsubq_u8(vec_src, diff);
+            tmp2_u8x16 = vqtbl4q_u8(table2, vec_src);
+
+            vec_src    = vsubq_u8(vec_src, diff);
+            tmp3_u8x16 = vqtbl4q_u8(table3, vec_src);
+
+            vec_src    = vsubq_u8(vec_src, diff);
+            tmp4_u8x16 = vqtbl4q_u8(table4, vec_src);
+
+            vec_dst = veorq_u8(veorq_u8(veorq_u8(tmp1_u8x16, tmp2_u8x16), tmp3_u8x16), tmp4_u8x16);
+
+            vst1q_u8(p_dst, vec_dst);
+
+            p_src += block_sz;
+            p_dst += block_sz;
+        }
+        // 处理余下的像素点
+        for (int i = block_num * block_sz; i < width * 3; i++) {
+            *p_dst = this->ymap[*p_src];
+
+            p_src++;
+            p_dst++;
+        }
+    }
+}
+
+void SEGCE::processing(const cv::Mat& src, cv::Mat& dst, string acc)
 {
     this->height = src.rows;
     this->width  = src.cols;
@@ -171,14 +249,8 @@ void SEGCE::processing(const cv::Mat& src, cv::Mat& dst)
     calc_spatial_histogram(img_gary.data);
     calc_spatial_entropy();
     calc_mapping();
-    pixel_mapping(src.data, dst.data);
-
-    // vector<cv::Mat> channels;
-    // split(src, channels);
-    // for (int c = 0; c < 3; c++) {
-    //     this->pixel_mapping(channels[c], channels[c], this->ymap);
-    // }
-
-    // merge(channels, dst);
+    pixel_mapping(src, dst);
+    // pixel_mapping_neon(src.data, dst.data);
+    // pixel_mapping(src.data, dst.data);
     return;
 }
