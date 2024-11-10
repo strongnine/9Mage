@@ -18,7 +18,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${9Mage_SOURCE_DIR}/bin)
 # SET(CMAKE_CXX_COMPILER "/usr/bin/g++")
 set(CMAKE_OSX_ARCHITECTURES arm64)
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -mfpu=neon")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 # find required opencv
 # find_package 这个指令以被用来在系统中自动查找配置构建工程所需的程序库
@@ -30,14 +30,15 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -mfpu=neon")
 find_package(OpenCV REQUIRED)
 
 # 源文件路径
-aux_source_directory(./src SRC_DIR)
+# aux_source_directory(./src SRC_DIR)
 aux_source_directory(./src/methods METHODS_DIR)
 aux_source_directory(./src/utils UTILS_DIR)
 
 # name of executable file and path of source file
 # 可执行文件的名字，和对应源码的名字
 # !!! 这个命令一定要在 TARGET_LINK_LIBRARIES 之前使用
-add_executable(9Mage ${SRC_DIR} ${METHODS_DIR} ${UTILS_DIR})
+add_executable(9Mage ./src/9Mage.cpp ${METHODS_DIR} ${UTILS_DIR})
+add_executable(PicPost ./src/main/picpost_main.cpp ./src/methods/picpost.cpp)
 
 # directory of opencv headers
 # 设置包含的头文件的路径
@@ -49,6 +50,7 @@ link_directories(${OpenCV_LIBRARY_DIRS})
 # opencv libraries
 # 设置库文件的路径
 target_link_libraries(9Mage ${OpenCV_LIBS})
+target_link_libraries(PicPost ${OpenCV_LIBS})
 
 # 在 VSCode 上使用 clangd 插件，遇到头文件 include 时找不到，可以执行命令: 
 #     cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1

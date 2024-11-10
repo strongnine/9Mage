@@ -1,5 +1,8 @@
 .DS_Store
 .cache
+data/9input
+data/9output
 build
 doxy
 python
+swift
