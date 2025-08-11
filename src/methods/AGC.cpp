@@ -1,4 +1,4 @@
-#include "lighten.h"
+#include "AGC.h"
 
 void AutoGammaCorrection(const cv::Mat& src, cv::Mat& dst)
 {
@@ -35,4 +35,47 @@ void AutoGammaCorrection(const cv::Mat& src, cv::Mat& dst)
         }
     }
     dst = out;
+}
+
+
+int main(int argc, char** argv)
+{
+    if (argc < 2) {
+        std::cout << "AGC <img_path>" << std::endl;
+        return 1;
+    }
+
+    std::string src_path = argv[1];
+    int         index    = src_path.find_last_of('/');
+
+    std::string dir_path = src_path.substr(0, index);
+    std::string img_name = src_path.substr(index + 1, -1);
+
+    index               = img_name.find_last_of('.');
+    std::string img_ext = img_name.substr(index + 1, -1);
+    img_name            = img_name.substr(0, index);
+
+    cv::Mat img_src;
+
+    std::cout << "读取图片: " << img_name << '.' << img_ext << std::endl;
+    std::cout << "处理中..." << std::endl;
+
+    img_src = cv::imread(src_path, cv::IMREAD_COLOR);
+    if (!img_src.data) {
+        std::cout << "No img_src data" << std::endl;
+        return -1;
+    }
+
+    // std::string save_path = argv[2];
+
+    std::string save_path = dir_path + "/" + img_name + "_AGC." + img_ext;
+    cv::Mat     img_res;
+
+    AutoGammaCorrection(img_src, img_res);
+
+    cv::imwrite(save_path, img_res);
+
+    std::cout << "结果图已保存: " << save_path << std::endl;
+
+    return 0;
 }

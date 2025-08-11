@@ -1,4 +1,4 @@
-#include "contrast.h"
+#include "SEGCE.h"
 #include <_types/_uint8_t.h>
 #include <arm_neon.h>
 #include <sys/_types/_int32_t.h>
@@ -177,7 +177,7 @@ void SEGCE::pixel_mapping_neon(const uint8_t* __restrict src, uint8_t* __restric
     // [16 17 18 19 | 20 21 22 23 | ... ]
     // [32 33 34 35 | 36 37 38 39 | ... ]
     // [48 49 50 51 | 52 53 54 55 | ... ]
-    // 
+    //
     // 读取到寄存器中 table 对应在 this->ymap 中的索引
     // [ 0  4  8 12 | 16 20 24 28 | ... ]
     // [ 1  5  9 13 | 17 21 25 29 | ... ]
@@ -253,4 +253,47 @@ void SEGCE::processing(const cv::Mat& src, cv::Mat& dst, string acc)
     // pixel_mapping_neon(src.data, dst.data);
     // pixel_mapping(src.data, dst.data);
     return;
+}
+
+int main(int argc, char** argv)
+{
+    if (argc < 2) {
+        std::cout << "SEGCE <img_path>" << std::endl;
+        return 1;
+    }
+
+    std::string src_path = argv[1];
+    int         index    = src_path.find_last_of('/');
+
+    std::string dir_path = src_path.substr(0, index);
+    std::string img_name = src_path.substr(index + 1, -1);
+
+    index               = img_name.find_last_of('.');
+    std::string img_ext = img_name.substr(index + 1, -1);
+    img_name            = img_name.substr(0, index);
+
+    cv::Mat img_src;
+
+    std::cout << "读取图片: " << img_name << '.' << img_ext << std::endl;
+    std::cout << "处理中..." << std::endl;
+
+    img_src = cv::imread(src_path, cv::IMREAD_COLOR);
+    if (!img_src.data) {
+        std::cout << "No img_src data" << std::endl;
+        return -1;
+    }
+
+    // std::string save_path = argv[2];
+
+    std::string save_path = dir_path + "/" + img_name + "_SEGCE." + img_ext;
+    cv::Mat     img_res;
+
+    SEGCE* segce = new SEGCE();
+    segce->processing(img_src, img_res);
+
+    cv::imwrite(save_path, img_res);
+
+    std::cout << "结果图已保存: " << save_path << std::endl;
+
+    return 0;
 }
